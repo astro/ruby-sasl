@@ -60,6 +60,23 @@ module SASL
     end
   end
 
+  def SASL.new(mechanisms, preferences)
+    best_mechanism = if preferences.want_anonymous? && mechanisms.include?('ANONYMOUS')
+                       'ANONYMOUS'
+                     elsif preferences.has_password?
+                       if mechanisms.include?('DIGEST-MD5')
+                         'DIGEST-MD5'
+                       elsif preferences.allow_plaintext?
+                         'PLAIN'
+                       else
+                         raise UnknownMechanism.new(mechanisms)
+                       end
+                     else
+                       raise UnknownMechanism.new(mechanisms)
+                     end
+    new_mechanism(best_mechanism, preferences)
+  end
+
   ##
   # Create a SASL Mechanism for the named mechanism
   #
