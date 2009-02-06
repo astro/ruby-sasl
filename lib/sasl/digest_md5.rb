@@ -24,19 +24,31 @@ module SASL
     def challenge(content)
       c = decode_challenge(content)
 
-      response = {}
-      @nonce ||= c['nonce']
-      response['nonce'] = @nonce
-      response['charset'] = 'utf-8'
-      response['username'] = preferences.username
-      response['realm'] = c['realm'] || preferences.realm
-      @cnonce = generate_nonce unless defined? @cnonce
-      response['cnonce'] = @cnonce
-      response['nc'] = next_nc
-      response['qop'] = 'auth'
-      response['digest-uri'] = preferences.digest_uri
-      response['response'] = response_value(response['nonce'], response['nc'], response['cnonce'], response['qop'])
-      ['response', encode_response(response)]
+      unless c['rspauth']
+        response = {}
+        @nonce ||= c['nonce']
+        response['nonce'] = @nonce
+        response['charset'] = 'utf-8'
+        response['username'] = preferences.username
+        response['realm'] = c['realm'] || preferences.realm
+        @cnonce = generate_nonce unless defined? @cnonce
+        response['cnonce'] = @cnonce
+        @nc = next_nc
+        response['nc'] = @nc
+        @qop = c['qop'] || 'auth'
+        response['qop'] = @qop
+        response['digest-uri'] = preferences.digest_uri
+        response['response'] = response_value(response['nonce'], response['nc'], response['cnonce'], response['qop'])
+        ['response', encode_response(response)]
+      else
+        rspauth_expected = response_value(@nonce, @nc, @cnonce, @qop, '')
+        p :rspauth_received=>c['rspauth'], :rspauth_expected=>rspauth_expected
+        if c['rspauth'] == rspauth_expected
+          ['success', nil]
+        else
+          ['failure', nil]
+        end
+      end
     end
 
     private
@@ -113,7 +125,7 @@ module SASL
     
     ##
     # Calculate the value for the response field
-    def response_value(nonce, nc, cnonce, qop)
+    def response_value(nonce, nc, cnonce, qop, a2_prefix='AUTHENTICATE')
       p :response_value => {:nonce=>nonce,
         :cnonce=>cnonce,
         :qop=>qop,
@@ -127,9 +139,9 @@ module SASL
         a1 += ":#{preferences.authzid}"
       end
       if qop && (qop.downcase == 'auth-int' || qop.downcase == 'auth-conf')
-        a2 = "AUTHENTICATE:#{preferences.digest_uri}:00000000000000000000000000000000"
+        a2 = "#{a2_prefix}:#{preferences.digest_uri}:00000000000000000000000000000000"
       else
-        a2 = "AUTHENTICATE:#{preferences.digest_uri}"
+        a2 = "#{a2_prefix}:#{preferences.digest_uri}"
       end
       hh("#{hh(a1)}:#{nonce}:#{nc}:#{cnonce}:#{qop}:#{hh(a2)}")
     end
