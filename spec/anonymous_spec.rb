@@ -13,7 +13,7 @@ describe SASL::Anonymous do
     sasl = SASL::Anonymous.new('ANONYMOUS', preferences)
     sasl.start.should == ['auth', 'bob']
     sasl.success?.should == false
-    sasl.receive('success', nil)
+    sasl.receive('success', nil).should == nil
     sasl.success?.should == true
   end
 end

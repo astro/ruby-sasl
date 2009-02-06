@@ -138,6 +138,7 @@ module SASL
       when 'failure'
         @state = :failure
       end
+      nil
     end
   end
 end
