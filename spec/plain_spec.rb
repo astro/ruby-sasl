@@ -2,7 +2,7 @@ require 'sasl'
 require 'spec'
 
 describe SASL::Plain do
-  class MyPreferences < SASL::Preferences
+  class MyPlainPreferences < SASL::Preferences
     def authzid
       'bob@example.com'
     end
@@ -16,7 +16,7 @@ describe SASL::Plain do
       's3cr3t'
     end
   end
-  preferences = MyPreferences.new
+  preferences = MyPlainPreferences.new
 
   it 'should authenticate' do
     sasl = SASL::Plain.new('PLAIN', preferences)

@@ -3,7 +3,7 @@ require 'spec'
 
 describe SASL::DigestMD5 do
   # Preferences from http://tools.ietf.org/html/rfc2831#section-4
-  class MyPreferences < SASL::Preferences
+  class MyDigestMD5Preferences < SASL::Preferences
     attr_writer :serv_type
     def realm
       'elwood.innosoft.com'
@@ -21,7 +21,7 @@ describe SASL::DigestMD5 do
       'secret'
     end
   end
-  preferences = MyPreferences.new
+  preferences = MyDigestMD5Preferences.new
 
   it 'should authenticate (1)' do
     preferences.serv_type = 'imap'

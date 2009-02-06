@@ -2,12 +2,12 @@ require 'sasl'
 require 'spec'
 
 describe SASL::Anonymous do
-  class MyPreferences < SASL::Preferences
+  class MyAnonymousPreferences < SASL::Preferences
     def username
       'bob'
     end
   end
-  preferences = MyPreferences.new
+  preferences = MyAnonymousPreferences.new
 
   it 'should authenticate anonymously' do
     sasl = SASL::Anonymous.new('ANONYMOUS', preferences)
