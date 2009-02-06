@@ -11,5 +11,5 @@ Gem::Specification.new do |s|
   s.has_rdoc = false
   s.homepage = 'http://github.com/astro/ruby-sasl/'
   s.require_paths = ["lib"]
-  s.summary = %q{SASL client library}
+  s.summary = 'SASL client library'
 end
