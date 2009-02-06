@@ -13,6 +13,7 @@ module SASL
     end
 
     def start
+      @state = nil
       unless defined? @nonce
         ['auth', nil]
       else

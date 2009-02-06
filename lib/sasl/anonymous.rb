@@ -7,6 +7,7 @@ module SASL
   # http://tools.ietf.org/html/rfc4505
   class Anonymous < Mechanism
     def start
+      @state = nil
       ['auth', preferences.username.to_s]
     end
   end
