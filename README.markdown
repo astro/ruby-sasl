@@ -15,8 +15,8 @@ Usage
 
 Derive from **SASL::Preferences** and overwrite the methods. Then,
 create a mechanism instance:
-`# mechanisms = ['DIGEST-MD5', 'PLAIN']
-sasl = SASL.new(mechanisms, my_preferences)
-content_to_send = sasl.start
-# [...]
-content_to_send = sasl.challenge(received_content)`
+    # mechanisms => ['DIGEST-MD5', 'PLAIN']
+    sasl = SASL.new(mechanisms, my_preferences)
+    content_to_send = sasl.start
+    # [...]
+    content_to_send = sasl.challenge(received_content)
