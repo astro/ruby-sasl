@@ -7,24 +7,35 @@ module SASL
   class DigestMD5 < Mechanism
     attr_writer :cnonce
 
+    def initialize(*a)
+      super
+      @nonce_count = 0
+    end
+
     def start
-      ['auth', nil]
+      unless defined? @nonce
+        ['auth', nil]
+      else
+        # reauthentication
+        challenge('')
+      end
     end
 
     def challenge(content)
       c = decode_challenge(content)
 
       response = {}
-      response['nonce'] = c['nonce']
+      @nonce ||= c['nonce']
+      response['nonce'] = @nonce
       response['charset'] = 'utf-8'
       response['username'] = preferences.username
       response['realm'] = c['realm'] || preferences.realm
       @cnonce = generate_nonce unless defined? @cnonce
       response['cnonce'] = @cnonce
-      response['nc'] = '00000001'
+      response['nc'] = next_nc
       response['qop'] = 'auth'
       response['digest-uri'] = preferences.digest_uri
-      response['response'] = response_value(response['nonce'], response['cnonce'], response['qop'])
+      response['response'] = response_value(response['nonce'], response['nc'], response['cnonce'], response['qop'])
       ['response', encode_response(response)]
     end
 
@@ -102,7 +113,7 @@ module SASL
     
     ##
     # Calculate the value for the response field
-    def response_value(nonce, cnonce, qop)
+    def response_value(nonce, nc, cnonce, qop)
       p :response_value => {:nonce=>nonce,
         :cnonce=>cnonce,
         :qop=>qop,
@@ -120,7 +131,14 @@ module SASL
       else
         a2 = "AUTHENTICATE:#{preferences.digest_uri}"
       end
-      hh("#{hh(a1)}:#{nonce}:00000001:#{cnonce}:#{qop}:#{hh(a2)}")
+      hh("#{hh(a1)}:#{nonce}:#{nc}:#{cnonce}:#{qop}:#{hh(a2)}")
+    end
+
+    def next_nc
+      @nonce_count += 1
+      s = @nonce_count.to_s
+      s = "0#{s}" while s.length < 8
+      s
     end
   end
 end
