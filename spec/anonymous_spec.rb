@@ -12,5 +12,8 @@ describe SASL::Anonymous do
   it 'should authenticate anonymously' do
     sasl = SASL::Anonymous.new('ANONYMOUS', preferences)
     sasl.start.should == ['auth', 'bob']
+    sasl.success?.should == false
+    sasl.receive('success', nil)
+    sasl.success?.should == true
   end
 end

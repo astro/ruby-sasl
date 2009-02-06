@@ -21,5 +21,19 @@ describe SASL::Plain do
   it 'should authenticate' do
     sasl = SASL::Plain.new('PLAIN', preferences)
     sasl.start.should == ['auth', "bob@example.com\000bob\000s3cr3t"]
+    sasl.success?.should == false
+    sasl.receive('success', nil)
+    sasl.failure?.should == false
+    sasl.success?.should == true
+  end
+
+  it 'should recognize failure' do
+    sasl = SASL::Plain.new('PLAIN', preferences)
+    sasl.start.should == ['auth', "bob@example.com\000bob\000s3cr3t"]
+    sasl.success?.should == false
+    sasl.failure?.should == false
+    sasl.receive('failure', 'keep-idiots-out')
+    sasl.failure?.should == true
+    sasl.success?.should == false
   end
 end

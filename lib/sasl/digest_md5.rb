@@ -17,36 +17,46 @@ module SASL
         ['auth', nil]
       else
         # reauthentication
-        challenge('')
+        receive('challenge', '')
       end
     end
 
-    def challenge(content)
-      c = decode_challenge(content)
+    def receive(message_name, content)
+      if message_name == 'challenge'
+        c = decode_challenge(content)
 
-      unless c['rspauth']
-        response = {}
-        @nonce ||= c['nonce']
-        response['nonce'] = @nonce
-        response['charset'] = 'utf-8'
-        response['username'] = preferences.username
-        response['realm'] = c['realm'] || preferences.realm
-        @cnonce = generate_nonce unless defined? @cnonce
-        response['cnonce'] = @cnonce
-        @nc = next_nc
-        response['nc'] = @nc
-        @qop = c['qop'] || 'auth'
-        response['qop'] = @qop
-        response['digest-uri'] = preferences.digest_uri
-        response['response'] = response_value(response['nonce'], response['nc'], response['cnonce'], response['qop'])
-        ['response', encode_response(response)]
-      else
-        rspauth_expected = response_value(@nonce, @nc, @cnonce, @qop, '')
-        p :rspauth_received=>c['rspauth'], :rspauth_expected=>rspauth_expected
-        if c['rspauth'] == rspauth_expected
-          ['success', nil]
+        unless c['rspauth']
+          response = {}
+          if defined?(@nonce) && response['nonce'].nil?
+            # Could be reauth
+          else
+            # No reauth:
+            @nonce_count = 0
+          end
+          @nonce ||= c['nonce']
+          response['nonce'] = @nonce
+          response['charset'] = 'utf-8'
+          response['username'] = preferences.username
+          response['realm'] = c['realm'] || preferences.realm
+          @cnonce = generate_nonce unless defined? @cnonce
+          response['cnonce'] = @cnonce
+          @nc = next_nc
+          response['nc'] = @nc
+          @qop = c['qop'] || 'auth'
+          response['qop'] = @qop
+          response['digest-uri'] = preferences.digest_uri
+          response['response'] = response_value(response['nonce'], response['nc'], response['cnonce'], response['qop'])
+          ['response', encode_response(response)]
         else
-          ['failure', nil]
+          rspauth_expected = response_value(@nonce, @nc, @cnonce, @qop, '')
+          p :rspauth_received=>c['rspauth'], :rspauth_expected=>rspauth_expected
+          if c['rspauth'] == rspauth_expected
+            @state = :success
+            ['success', nil]
+          else
+            @state = :failure
+            ['failure', nil]
+          end
         end
       end
     end
