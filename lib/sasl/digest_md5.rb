@@ -59,6 +59,9 @@ module SASL
             ['failure', nil]
           end
         end
+      else
+        # No challenge? Might be success or failure
+        super
       end
     end
 

@@ -94,4 +94,12 @@ describe SASL::DigestMD5 do
     response[1].should =~ /response=b0b5d72a400655b8306e434566b10efb"?/ # my own result
     response[1].should =~ /"?qop=auth"?/
   end
+
+  it 'should fail' do
+    sasl = SASL::DigestMD5.new('DIGEST-MD5', preferences)
+    sasl.start.should == ['auth', nil]
+    sasl.receive('failure', 'EPIC FAIL')
+    sasl.failure?.should == true
+    sasl.success?.should == false
+  end
 end
