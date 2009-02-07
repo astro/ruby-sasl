@@ -44,7 +44,8 @@ describe SASL::DigestMD5 do
 
     sasl.receive('challenge',
                  'rspauth=ea40f60335c427b5527b84dbabcdfffd').should ==
-      ['success', nil]
+      ['response', nil]
+    sasl.receive('success', nil).should == nil
     sasl.success?.should == true
   end
 
@@ -69,7 +70,8 @@ describe SASL::DigestMD5 do
 
     sasl.receive('challenge',
                  'rspauth=2f0b3d7c3c2e486600ef710726aa2eae').should ==
-      ['success', nil]
+      ['response', nil]
+    sasl.receive('success', nil).should == nil
     sasl.success?.should == true
   end
 

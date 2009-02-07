@@ -52,9 +52,9 @@ module SASL
           rspauth_expected = response_value(@nonce, @nc, @cnonce, @qop, '')
           p :rspauth_received=>c['rspauth'], :rspauth_expected=>rspauth_expected
           if c['rspauth'] == rspauth_expected
-            @state = :success
-            ['success', nil]
+            ['response', nil]
           else
+            # Bogus server?
             @state = :failure
             ['failure', nil]
           end
