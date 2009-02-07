@@ -1,9 +1,9 @@
 Gem::Specification.new do |s|
   s.name = 'ruby-sasl'
-  s.version = "0.0.2"
+  s.version = '0.0.3'
 
   s.authors = ['Stephan Maka']
-  s.date = '2009-02-06'
+  s.date = '2009-02-07'
   s.description = 'Simple Authentication and Security Layer (RFC 4422)'
   s.email = 'stephan@spaceboyz.net'
   s.test_files = %w(spec/mechanism_spec.rb
